@@ -105,9 +105,14 @@ public function GlacialRiftEncounterBonus():Boolean
 	return false;
 }
 
+public function GlacialRiftCoast():Boolean
+{
+	return HereBeDragonBonus();
+}
+
 public function HereBeDragonBonus():Boolean
 {
-	if(flags["ENCOUNTERS_DISABLED"] != undefined || flags["FROSTWYRMSLAIN"] == 1) return false;
+	if(flags["ENCOUNTERS_DISABLED"] != undefined || flags["FROSTWYRMSLAIN"] == 1 || flags["FROSTWYRM_DISABLED"] != undefined) return false;
 	
 	//Always encounter Frostwyrm first time
 	if(flags["MET_FROSTWYRM"] == undefined)
@@ -124,10 +129,25 @@ public function HereBeDragonBonus():Boolean
 	if(flags["UVETOCOAST_STEP"] >= 7 && rand(2) == 0) {
 		//Reset step counter
 		flags["UVETOCOAST_STEP"] = 0;
-		//Build encounter
-		encounterFrostwyrm();
-		return true;
+		
+		if(flags["FROSTWYRM_NOT_HOSTILE"] == undefined)
+		{
+			//Build encounter
+			encounterFrostwyrm();
+			return true;
+		}
 	}
+	
+	if(flags["FROSTWYRM_NOT_HOSTILE"] != undefined)
+	{
+		if(flags["FROSTWYRM_NOT_HOSTILE"] < 2)
+		{
+			if(!pc.hasGenitals()) addDisabledButton(0, frostwyrm.short, "Call [frostwyrm.name]", "You need genitals to interact with the frostwyrm.");
+			else addButton(0, frostwyrm.short, frostyReadyToBang, undefined, "Call [frostwyrm.name]", "Make contact with the frostwyrm.");
+		}
+		else addButton(0, frostwyrm.short, frostwyrmPickMeUpBaby, undefined, "Call [frostwyrm.name]", "Make contact with the frostwyrm.");
+	}
+	
 	if (tryUvetoWeatherEvent(flags["UVETOCOAST_STEP"])) return true;
 	if (tryEncounterSavicite(flags["UVETOCOAST_STEP"])) return true;
 	
@@ -641,8 +661,7 @@ public function uvetoReactivateProbe():void
 	}
 	else
 	{
-		output("\n\nYou give the machine a long, thorough once-over, looking up parts and connections in your Codex, trying to deduce what went wrong... other than it explosively crashing, anyway. With a few helpful forum posts, you’re able to dig into the probe’s mechanical guts and and start pulling and rearranging things, trying to reboot it.");
-	
+		output("\n\nYou give the machine a long, thorough once-over, looking up parts and connections in your Codex, trying to deduce what went wrong... other than it explosively crashing, anyway. With a few helpful forum posts, you’re able to dig into the probe’s mechanical guts and start pulling and rearranging things, trying to reboot it.");
 		output("\n\nEventually, you manage to get it sorted out, and punch the power button inside it again. It takes a moment, but eventually the probe starts whirring and the systems begin coming online.");
 	}
 	
